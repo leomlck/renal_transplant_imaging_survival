@@ -1,0 +1,3 @@
+clinical,event,exam,mod,model,pretraining,seed
+0,cr,J15,dce,radiomics,radiomics_binWidth_25,8
+1,cr,J15,dce,radiomics,radiomics_binWidth_25,8

@@ -1,0 +1,7 @@
+clinical,event,exam,mod,model,pretraining,seed
+0,cr,J15,dce,cnn,patient5k,12
+0,cr,J15,dce,cnn,incomp5k,12
+0,cr,J15,dce,cnn,ischem5k,12
+0,cr,J15,dce,cnn,agedonor5k,12
+0,cr,J15,dce,cnn,fibrose5k,12
+0,cr,J15,dce,cnn,mdrd5k,12

@@ -3,7 +3,7 @@ import io
 import pandas as pd
 import time
 
-job_name = '/gpfs/users/mileckil/kidney_workspace/project_kidney/survival_workspace/src/fit_job.sh'
+job_name = '/gpfs/users/mileckil/kidney_workspace/renal_transplant_imaging_survival/fit_job.sh'
 
 start_script = ('#!/bin/bash\n' +
                 '#SBATCH --job-name=main_kp\n' +

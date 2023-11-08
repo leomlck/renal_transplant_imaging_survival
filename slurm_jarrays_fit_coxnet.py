@@ -5,10 +5,9 @@ import time
 from sklearn.model_selection import ParameterGrid
 
 settings = 'radiomics_J15_all_2'
-#settings = 'dce_J15_6'
 n_arrays = settings.split('_')[-1]
 
-job_name = '/gpfs/users/mileckil/kidney_workspace/project_kidney/survival_workspace/src/fit_job_coxnet.sh'
+job_name = '/gpfs/users/mileckil/kidney_workspace/renal_transplant_imaging_survival/fit_job_coxnet.sh'
 
 start_script = ('#!/bin/bash\n' +
                 '#SBATCH --job-name=main_survival_net\n' +
@@ -24,7 +23,7 @@ start_script = ('#!/bin/bash\n' +
                 'module load anaconda3/2021.05/gcc-9.2.0\n'+
                 'source activate survenv\n')
 
-command = 'python fit_coxnet_30_jarrays.py --settings {} --job_index $SLURM_ARRAY_TASK_ID'.format(settings)  
+command = 'python fit_coxnet_jarrays.py --settings {} --job_index $SLURM_ARRAY_TASK_ID'.format(settings)  
 with open(job_name, 'w') as fh:
     fh.write(start_script)
     fh.write(command)

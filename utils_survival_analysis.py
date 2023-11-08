@@ -5,9 +5,6 @@ import time
 import os
 
 from sklearn.model_selection import StratifiedKFold
-from sklearn.preprocessing import normalize, StandardScaler
-from sklearn.manifold import TSNE
-from sklearn.decomposition import PCA
 
 from lifelines.statistics import logrank_test
 from lifelines import KaplanMeierFitter

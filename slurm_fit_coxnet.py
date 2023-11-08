@@ -4,7 +4,7 @@ import pandas as pd
 import time
 from sklearn.model_selection import ParameterGrid
 
-job_name = '/gpfs/users/mileckil/kidney_workspace/project_kidney/survival_workspace/src/fit_job_coxnet.sh'
+job_name = '/gpfs/users/mileckil/kidney_workspace/renal_transplant_imaging_survival/fit_job_coxnet.sh'
 
 start_script = ('#!/bin/bash\n' +
                 '#SBATCH --job-name=main_survival\n' +
@@ -21,16 +21,16 @@ start_script = ('#!/bin/bash\n' +
 
 parameters = {
 'model': ['cnn'],
-'mod': ['dce', 'dw'],
-'pretraining': ['patient5k', 'incomp5k', 'ischem5k', 'agedonor5k', 'fibrose5k', 'mdrd5k'], #'patient5k_ext_nocur', 'patient2k5_ext'], #['radiomics_binWidth_25'], #['patient5k_ext_nocur', 'patient2k5_ext'], #'patient5k', 'incomp5k', 'ischem5k', 'agedonor5k', 'fibrose5k', 'mdrd5k_mresnet18', 'mdrd5k_r18vits16', 'patient_all', 'agedonor_all', 'mdrd_all', 'fibrose_all', 'incomp_all', 'ischem_all'], #['radiomics_binWidth_25',
-'exam': ['J15', 'J30', 'M3', 'M12'],
-'event': ['cr'], #'cr'],
+'mod': ['dce'],
+'pretraining': ['patient5k'],
+'exam': ['J15'],
+'event': ['cr'],
 'seed': [42],
 }
-#time.sleep(60*60*3)
+
 for i, params in enumerate(list(ParameterGrid(parameters))):
     params_list = ['--{} {}'.format(param, params[param]) for param in params.keys()]
-    command = 'python fit_coxnet_30.py ' + ' '.join(params_list) 
+    command = 'python fit_coxnet.py ' + ' '.join(params_list) 
     with open(job_name, 'w') as fh:
         fh.write(start_script)
         fh.write(command)
@@ -38,7 +38,3 @@ for i, params in enumerate(list(ParameterGrid(parameters))):
     print(stdout)
     os.remove(job_name)
     time.sleep(20)
-    '''
-    if (i+1)%25==0:
-        time.sleep(60*25)
-    '''

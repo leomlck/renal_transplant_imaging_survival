@@ -15,8 +15,7 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 
-from sklearn.cluster import KMeans, MeanShift, SpectralClustering, AgglomerativeClustering, DBSCAN
-from sklearn.mixture import GaussianMixture, BayesianGaussianMixture
+from sklearn.cluster import KMeans
 
 from lifelines.statistics import logrank_test
 from lifelines import KaplanMeierFitter
@@ -46,10 +45,14 @@ n_jobs = 4
 years = 5 if args.event=='cr' else 2 
 normalize = True
 
+# Data, features, model paths
+
 main_path = '/gpfs/users/mileckil/kidney_workspace/project_kidney/survival_workspace/save'
 features_path = '/gpfs/workdir/mileckil/output'
 data_path = '/gpfs/workdir/mileckil/data/clinicobiological_data'
 model_folder = 'RandomSurvivalForest_el' if args.survival_model=='rsf' else 'CoxnetSurvivalAnalysis_el'
+
+# Load features
 
 path_to_features = os.path.join(features_path, 'save_features/save_features_{}_{}/features_{}_{}.csv'.format(args.model, args.mod, args.exam, args.pretraining))
 df_features = pd.read_csv(path_to_features, index_col=0)
@@ -71,6 +74,8 @@ df_features = df_features.loc[:, (df_features != 0).any(axis=0)]
 save_folder = 'results_survival_analysis_{}_ext'.format(args.event)
 save_folder = os.path.join(main_path, save_folder, args.mod, args.pretraining, args.exam, model_folder)
 
+# Load selected features by the survival model
+
 with open(os.path.join(main_path, save_folder, 'ordered_feats_{}.json'.format(args.survival_model))) as fp:
     selected_feats = json.load(fp)
 selected_feats = selected_feats['best_model_ordered_feats']
@@ -82,16 +87,12 @@ elif args.event == 'ar':
 else:
     print('Invalid event arg')
 
-# clustering features
+# Clustering features
+
 n_clusters = 2
 
 dictionnary_clusterers = {
-    "KMeans" : KMeans(n_clusters=n_clusters),
-    "MeanShift" : MeanShift(n_jobs=n_jobs),
-    "SpectralClustering" : SpectralClustering(n_clusters=n_clusters, n_jobs=n_jobs),
-    "AgglomerativeClustering" : AgglomerativeClustering(n_clusters=n_clusters),
-    #"GaussianMixture" : GaussianMixture(n_components=n_clusters),
-    #"BayesianGaussianMixture" : BayesianGaussianMixture(n_components=n_clusters)
+    "KMeans" : KMeans(n_clusters=n_clusters)
 }
 
 X = df_features.merge(df_cr[['patient', 'event', 'duration']], how='left', on='patient').drop(columns='patient')
@@ -124,6 +125,8 @@ target_thresholds = dict_target_thresholds[group]
 
 T = XX["duration"]
 E = XX["event"]
+
+# Plot Kaplan-Meier curves
 
 kmf = KaplanMeierFitter()
 fig, ax = plt.subplots(len(targets), 1, figsize=(5,5*len(targets))) 

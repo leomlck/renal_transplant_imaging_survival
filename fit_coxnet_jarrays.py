@@ -131,15 +131,10 @@ X = X.drop(columns=['event', 'duration', 'patient'])
 
 Xt = df_features_ext.merge(df_ext[['patient', 'event', 'duration']], how='left', on='patient')
 Xt_early = Xt.sort_values(by='exam').drop_duplicates(subset='patient', keep='first')
-Xt_late = Xt.sort_values(by='exam').drop_duplicates(subset='patient', keep='last')
 print('len(Xt_early) :', len(Xt_early))
 print("Xt_early['event'].sum() :", Xt_early['event'].sum())
-print('len(Xt_late) :', len(Xt_late))
-print("Xt_late['event'].sum() :", Xt_late['event'].sum())
 yt_early = sksurv.util.Surv.from_dataframe('event', 'duration', Xt_early)
-yt_late = sksurv.util.Surv.from_dataframe('event', 'duration', Xt_late)
 Xt_early = Xt_early.drop(columns=['event', 'duration', 'patient', 'exam'])
-Xt_late = Xt_late.drop(columns=['event', 'duration', 'patient', 'exam'])
 
 coxnet_pipe = make_pipeline(
     StandardScaler(),
@@ -176,11 +171,9 @@ try:
     coxnet_pred.fit(X, y)
     train_score = coxnet_pred.score(X, y)
     test_score_early = coxnet_pred.score(Xt_early, yt_early)
-    test_score_late = coxnet_pred.score(Xt_late, yt_late)
 except ArithmeticError:
     train_score = .5
     test_score_early = .5
-    test_score_late = .5
 
 best_coefs = pd.DataFrame(
     coxnet_pred.named_steps["coxnetsurvivalanalysis"].coef_,
@@ -210,20 +203,6 @@ except ArithmeticError:
     trained_test_score_early = .5
     main_test_score_early = .5
 
-try:
-    coxnet_pred.fit(Xt_late, yt_late)
-    trained_test_score_late = coxnet_pred.score(Xt_late, yt_late)
-    main_test_score_late = coxnet_pred.score(X, y)
-except ArithmeticError:
-    trained_test_score_late = .5
-    main_test_score_late = .5
-'''
-try:
-    train_crossval_scores = cross_val_score(coxnet_pred, X, y, cv=cv, n_jobs=n_jobs)
-    mean_train_crossval_scores, std_train_crossval_scores = np.mean(train_crossval_scores), np.std(train_crossval_scores)
-except ValueError:
-    mean_train_crossval_scores, std_train_crossval_scores = 0.5, 0.
-'''
 mean_train_crossval_scores_main = cv_results['mean_test_score'][gcv.best_index_]
 std_train_crossval_scores_main = cv_results['std_test_score'][gcv.best_index_]
 
@@ -233,19 +212,12 @@ try:
 except ValueError:
     mean_test_crossval3_scores_early, std_test_crossval3_scores_early = 0.5, 0.
 
-try:
-    test_crossval3_scores_late = cross_val_score(coxnet_pred, Xt_late, yt_late, cv=cv, n_jobs=n_jobs)
-    mean_test_crossval3_scores_late, std_test_crossval3_scores_late = np.mean(test_crossval3_scores_late), np.std(test_crossval3_scores_late)
-except ValueError:
-    mean_test_crossval3_scores_late, std_test_crossval3_scores_late = 0.5, 0.
-
-scores.append([train_score, test_score_early, test_score_late,
-               trained_test_score_early, trained_test_score_late,
-               main_test_score_early, trained_test_score_late,
+scores.append([train_score, test_score_early, 
+               trained_test_score_early, 
+               main_test_score_early, 
                mean_train_crossval_scores_main, std_train_crossval_scores_main,
                0, 0,
-               mean_test_crossval3_scores_early, std_test_crossval3_scores_early,
-               mean_test_crossval3_scores_late, std_test_crossval3_scores_late])
+               mean_test_crossval3_scores_early, std_test_crossval3_scores_early])
 
 ordered_feats = non_zero_coefs.abs().sort_values("coefficient", ascending=False)
 s_feats = {'best_model_ordered_feats': ordered_feats.index.tolist()}
@@ -291,11 +263,9 @@ for thresholds_id in thresholds_ids:
         coxnet_pred.fit(X, y)
         train_score = coxnet_pred.score(X, y)
         test_score_early = coxnet_pred.score(Xt_early, yt_early)
-        test_score_late = coxnet_pred.score(Xt_late, yt_late)
     except ArithmeticError:
         train_score = .5
         test_score_early = .5
-        test_score_late = .5
 
     try:
         coxnet_pred.fit(Xt_early, yt_early)
@@ -305,20 +275,6 @@ for thresholds_id in thresholds_ids:
         trained_test_score_early = .5
         main_test_score_early = .5
 
-    try:
-        coxnet_pred.fit(Xt_late, yt_late)
-        trained_test_score_late = coxnet_pred.score(Xt_late, yt_late)
-        main_test_score_late = coxnet_pred.score(X, y)
-    except ArithmeticError:
-        trained_test_score_late = .5
-        main_test_score_late = .5
-    '''
-    try:
-        train_crossval_scores = cross_val_score(coxnet_pred, X, y, cv=cv, n_jobs=n_jobs)
-        mean_train_crossval_scores, std_train_crossval_scores = np.mean(train_crossval_scores), np.std(train_crossval_scores)
-    except ValueError:
-        mean_train_crossval_scores, std_train_crossval_scores = 0.5, 0.
-    '''
     mean_train_crossval_scores = cv_results['mean_test_score'][gcv.best_index_]
     std_train_crossval_scores = cv_results['std_test_score'][gcv.best_index_]
 
@@ -329,27 +285,20 @@ for thresholds_id in thresholds_ids:
     except ValueError:
         mean_test_crossval3_scores_early, std_test_crossval3_scores_early = 0.5, 0.
 
-    try:
-        test_crossval3_scores_late = cross_val_score(coxnet_pred, Xt_late, yt_late, cv=cv, n_jobs=n_jobs)
-        mean_test_crossval3_scores_late, std_test_crossval3_scores_late = np.mean(test_crossval3_scores_late), np.std(test_crossval3_scores_late)
-    except ValueError:
-        mean_test_crossval3_scores_late, std_test_crossval3_scores_late = 0.5, 0.
 
-    scores.append([train_score, test_score_early, test_score_late,
-                   trained_test_score_early, trained_test_score_late,
-                   main_test_score_early, main_test_score_late, 
+    scores.append([train_score, test_score_early, 
+                   trained_test_score_early, 
+                   main_test_score_early, 
                    mean_train_crossval_scores_main, std_train_crossval_scores_main,
                    mean_train_crossval_scores, std_train_crossval_scores,
-                   mean_test_crossval3_scores_early, std_test_crossval3_scores_early,
-                   mean_test_crossval3_scores_late, std_test_crossval3_scores_late])
+                   mean_test_crossval3_scores_early, std_test_crossval3_scores_early])
 
-df_scores = pd.DataFrame(scores, columns=['train', 'test_early', 'test_late',
-                                          'trained_test_early', 'trained_test_late',
-                                          'main_early', 'main_late', 
+df_scores = pd.DataFrame(scores, columns=['train', 'test_early', 
+                                          'trained_test_early', 
+                                          'main_early',  
                                           'mean_3CV_train_main', 'std_3CV_train_main',
                                           'mean_3CV_train', 'std_3CV_train',
-                                          'mean_3CV_test_early', 'std_3CV_test_early',
-                                          'mean_3CV_test_late', 'std_3CV_test_late'], index=['all']+['selected_{}'.format(thresholds_id) for thresholds_id in thresholds_ids])
+                                          'mean_3CV_test_early', 'std_3CV_test_early'], index=['all']+['selected_{}'.format(thresholds_id) for thresholds_id in thresholds_ids])
 df_scores.to_csv(os.path.join(main_path, save_folder, 'scores_coxnet.csv'))
 
 

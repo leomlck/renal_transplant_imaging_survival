@@ -43,9 +43,13 @@ n_jobs = 4
 years = 5 if args.event=='cr' else 2 
 normalize = True
 
+# Data, features, model paths
+
 main_path = '/gpfs/users/mileckil/kidney_workspace/project_kidney/survival_workspace/save'
 features_path = '/gpfs/workdir/mileckil/output'
 data_path = '/gpfs/workdir/mileckil/data/clinicobiological_data'
+
+# Load features
 
 path_to_features = os.path.join(features_path, 'save_features/save_features_{}_{}/features_{}_{}.csv'.format(args.model, args.mod, args.exam, args.pretraining))
 df_features = pd.read_csv(path_to_features, index_col=0)
@@ -75,7 +79,8 @@ elif args.event == 'ar':
 else:
     print('Invalid event arg')
 
-# clustering features
+# Clustering features
+
 n_clusters = 2
 
 dictionnary_clusterers = {
@@ -116,6 +121,8 @@ target_thresholds = dict_target_thresholds[group]
 
 T = XX["duration"]
 E = XX["event"]
+
+# Plot Kaplan-Meier curves
 
 kmf = KaplanMeierFitter()
 fig, ax = plt.subplots(len(targets), 1, figsize=(5,5*len(targets))) 

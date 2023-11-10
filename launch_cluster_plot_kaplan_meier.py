@@ -5,9 +5,10 @@ import time
 import subprocess
 from sklearn.model_selection import ParameterGrid
 
+# Use only the features selected by the survival model (or not)
 selected = 1
-ext = 1
 
+# Features origin parameters
 parameters = {
 'model': ['cnn'],
 'mod': ['dce'],
@@ -17,14 +18,9 @@ parameters = {
 
 if selected:
     parameters['survival_model'] = ['coxnet']
-if not mix:
-    if not ext or selected:
-        parameters['exam'] = ['J15']
 
 
 base_command = 'python cluster_plot_kaplan_meier'
-if ext:
-    base_command += '_ext'
 if selected:
     base_command += '_selected'
 base_command += '.py '

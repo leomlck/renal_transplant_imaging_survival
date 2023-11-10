@@ -1,5 +1,7 @@
 # Survival Analysis from renal transplants imaging features
 
+Assuming you have your best imaging features you want to perform survival analysis with (for example obtained with github.com/leomlck/renal_transplant_imaging).
+
 ## Usage 
 
 Cross-validate your Cox model on your main data features (identified by *model*, *mod*, *exam* and *pretraining* arguments) and test on the '_external' features with:

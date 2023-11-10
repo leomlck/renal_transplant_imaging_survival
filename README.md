@@ -1,6 +1,6 @@
 # Survival Analysis from renal transplants imaging features
 
-Assuming you have your best imaging features you want to perform survival analysis with (for example obtained with github.com/leomlck/renal_transplant_imaging).
+Assuming you have your best imaging features you want to perform survival analysis with (for example obtained with [github.com/leomlck/renal_transplant_imaging](github.com/leomlck/renal_transplant_imaging)).
 
 ## Usage 
 
